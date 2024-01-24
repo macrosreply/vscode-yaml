@@ -6,7 +6,7 @@
  *--------------------------------------------------------------------------------------------*/
 'use strict';
 
-import { workspace, ExtensionContext, extensions, window, commands, Uri, CompletionList } from 'vscode';
+import { workspace, ExtensionContext, extensions, window, commands, Uri, CompletionList, Hover } from 'vscode';
 import {
   CommonLanguageClient,
   LanguageClientOptions,
@@ -133,28 +133,48 @@ export function startClient(
     outputChannel: new TelemetryOutputChannel(outputChannel, runtime.telemetry),
     // Follow https://code.visualstudio.com/api/language-extensions/embedded-languages#request-forwarding-sample
     middleware: {
-      provideCompletionItem: async (document, position, context, token, next) => {
+      provideHover: async (document, position, token, next) => {
         // If not in any special block, do not perform request forwarding
-        if (!isInRootComponentStyle(document, document.offsetAt(position), runtime.telemetry)) {
-          return await next(document, position, context, token);
+        if (isInRootComponentStyle(document, document.offsetAt(position), runtime.telemetry)) {
+          const originalUri = document.uri.toString(true);
+          const vdocUriString = `embedded-content://less/${encodeURIComponent(originalUri)}.less`;
+          const vdocUri = Uri.parse(vdocUriString);
+
+          virtualDocumentContents.set(
+            originalUri,
+            buildRootStyleVirtualContent(document, document.offsetAt(position), runtime.telemetry)
+          );
+
+          const result = await commands.executeCommand<Hover>('vscode.executeHoverProvider', vdocUri, position);
+
+          return result[0];
         }
 
-        const originalUri = document.uri.toString(true);
-        virtualDocumentContents.set(
-          originalUri,
-          buildRootStyleVirtualContent(document, document.offsetAt(position), runtime.telemetry)
-        );
+        return await next(document, position, token);
+      },
+      provideCompletionItem: async (document, position, context, token, next) => {
+        // If not in any special block, do not perform request forwarding
+        if (isInRootComponentStyle(document, document.offsetAt(position), runtime.telemetry)) {
+          const originalUri = document.uri.toString(true);
+          const vdocUriString = `embedded-content://less/${encodeURIComponent(originalUri)}.less`;
+          const vdocUri = Uri.parse(vdocUriString);
 
-        const vdocUriString = `embedded-content://less/${encodeURIComponent(originalUri)}.less`;
-        const vdocUri = Uri.parse(vdocUriString);
-        const result = await commands.executeCommand<CompletionList>(
-          'vscode.executeCompletionItemProvider',
-          vdocUri,
-          position,
-          context.triggerCharacter
-        );
+          virtualDocumentContents.set(
+            originalUri,
+            buildRootStyleVirtualContent(document, document.offsetAt(position), runtime.telemetry)
+          );
 
-        return result;
+          const result = await commands.executeCommand<CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            vdocUri,
+            position,
+            context.triggerCharacter
+          );
+
+          return result;
+        }
+
+        return await next(document, position, context, token);
       },
     },
   };
@@ -178,7 +198,6 @@ export function startClient(
   context.subscriptions.push(
     workspace.registerTextDocumentContentProvider('embedded-content', {
       provideTextDocumentContent: (uri) => {
-        // TODO: support .less and .js
         // Remove leading `/` and ending `.less` to get original URI
         const originalUri = uri.path.slice(1).slice(0, -5);
         const decodedUri = decodeURIComponent(originalUri);

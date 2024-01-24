@@ -43,7 +43,6 @@ export const buildRootStyleVirtualContent = (document: TextDocument, offset: num
       .getText()
       .split('\n')
       .map((line, i) => {
-        console.log('line ' + i + ': ' + line);
         if (i >= startPositionLine && i < endPositionLine) {
           return ' '.repeat(2) + nodeLines[i - startPositionLine];
         }
@@ -51,8 +50,6 @@ export const buildRootStyleVirtualContent = (document: TextDocument, offset: num
         return ' '.repeat(line.length);
       })
       .join('\n');
-
-    console.log(content);
 
     return content;
   } catch (error) {
