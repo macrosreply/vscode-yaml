@@ -39,10 +39,7 @@
     "virtualWorkspaces": true
   },
   "activationEvents": [
-    "workspaceContains:./package.ya?ml",
-    "onLanguage:yaml",
-    "onLanguage:dockercompose",
-    "onLanguage:github-actions-workflow"
+    "workspaceContains:./package.ya?ml"
   ],
   "keywords": [
     "kubernetes",
