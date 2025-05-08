@@ -120,8 +120,8 @@ export function startClient(
     // Register the server for on disk and newly created YAML documents
     documentSelector: [
       { language: 'eBuilder.yaml' },
-      { language: 'yaml' },
       { language: 'dockercompose' },
+      { language: 'github-actions-workflow' },
       { pattern: '*.y(a)ml' },
     ],
     synchronize: {

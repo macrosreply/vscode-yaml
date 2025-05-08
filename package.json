@@ -14,7 +14,7 @@
     }
   ],
   "license": "MIT",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "publisher": "redhat",
   "bugs": "https://github.com/redhat-developer/vscode-yaml/issues",
   "repository": {
@@ -305,6 +305,6 @@
     "vscode-nls": "^3.2.1",
     "vscode-uri": "^2.0.3",
     "whatwg-fetch": "^3.6.2",
-    "yaml-language-server": "next"
+    "yaml-language-server": "/Users/kentnguyen/Projects/yaml-language-server"
   }
 }
