@@ -5,6 +5,7 @@ import { matchOffsetToDocument } from './languageservice/utils/arrUtils';
 
 export const isInRootComponentStyle = (document: TextDocument, offset: number, telemetry: TelemetryService): boolean => {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const doc = yamlDocumentsCache.getYamlDocument(document as any);
     const currentDoc = matchOffsetToDocument(offset, doc);
     const node = currentDoc.getNodeFromOffset(offset);
@@ -33,6 +34,7 @@ export const isInRootComponentStyle = (document: TextDocument, offset: number, t
 
 export const buildRootStyleVirtualContent = (document: TextDocument, offset: number, telemetry: TelemetryService): string => {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const doc = yamlDocumentsCache.getYamlDocument(document as any);
     const currentDoc = matchOffsetToDocument(offset, doc);
     const node = currentDoc.getNodeFromOffset(offset, true);

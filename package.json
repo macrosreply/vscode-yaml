@@ -14,7 +14,7 @@
     }
   ],
   "license": "MIT",
-  "version": "1.19.0",
+  "version": "1.18.0",
   "publisher": "redhat",
   "bugs": "https://github.com/redhat-developer/vscode-yaml/issues",
   "repository": {
@@ -39,7 +39,7 @@
     "virtualWorkspaces": true
   },
   "activationEvents": [
-    "workspaceContains:./package.ya?ml"
+    "workspaceContains:./package.ya?ml",
     "onLanguage:yaml",
     "onLanguage:dockercompose",
     "onLanguage:github-actions-workflow"
