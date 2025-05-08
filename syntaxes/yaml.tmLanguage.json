@@ -5,8 +5,8 @@
 		"Once accepted there, we are happy to receive an update request."
 	],
 	"version": "https://github.com/textmate/yaml.tmbundle/commit/e54ceae3b719506dba7e481a77cea4a8b576ae46",
-	"name": "YAML",
-	"scopeName": "source.yaml",
+	"name": "eBuilder YAML",
+	"scopeName": "source.eBuilder.yaml",
 	"patterns": [
 		{
 			"include": "#comment"
@@ -24,6 +24,9 @@
 		{
 			"match": "^\\.{3}",
 			"name": "entity.other.document.end.yaml"
+		},
+		{
+			"include": "#block-css-node"
 		},
 		{
 			"include": "#node"
@@ -149,7 +152,18 @@
 				{
 					"begin": "^([ ]+)(?! )",
 					"end": "^(?!\\1|\\s*$)",
-					"name": "string.unquoted.block.yaml"
+          "patterns": [
+            {
+              "include": "#block-js-one-line-expression"
+            },
+            {
+              "include": "#block-js-expression"
+            },
+            {
+              "match": ".+",
+              "name": "string.unquoted.block.yaml"
+            }
+          ]
 				}
 			]
 		},
@@ -469,7 +483,16 @@
 				{
 					"begin": "(?x)\n                          [^\\s[-?:,\\[\\]{}#&*!|>'\"%@`]]\n                        | [?:-] \\S\n                    ",
 					"end": "(?x)\n                        (?=\n                              \\s* $\n                            | \\s+ \\#\n                            | \\s* : (\\s|$)\n                        )\n                    ",
-					"name": "string.unquoted.plain.out.yaml"
+          "name": "string.unquoted.plain.out.yaml",
+          "patterns": [
+            {
+              "include": "#one-line-js-expression"
+            },
+            {
+              "match": ".+",
+              "name": "string.unquoted.plain.out.yaml"
+            }
+          ]
 				}
 			]
 		},
@@ -570,6 +593,33 @@
 		},
 		"node": {
 			"patterns": [
+        {
+          "begin": "^(style)(:)\\s+(\\|)\\s*(.*)$",
+			    "end": "^(?=\\S)",
+			    "beginCaptures": {
+            "1": {
+              "name": "entity.name.tag.yaml"
+            },
+            "2": {
+              "name": "punctuation.separator.key-value.mapping.yaml"
+            },
+            "3": {
+              "name": "keyword.control.flow.block-scalar.literal.yaml"
+            }
+          },
+          "patterns": [
+            {
+              "begin": "(^|\\G)(\\s*)(.*)",
+              "end": "^(?=\\S)",
+              "contentName": "meta.embedded.block.less",
+              "patterns": [
+                {
+                  "include": "source.css.less"
+                }
+              ]
+            }
+          ]
+        },
 				{
 					"include": "#block-node"
 				}
@@ -616,6 +666,76 @@
 					"include": "#property"
 				}
 			]
-		}
+		},
+    "block-js-expression": {
+      "begin": "(^|\\G)\\$\\{\\{\\s+",
+      "end": "(^|\\G)\\s+\\}\\}\\s*$",
+      "beginCaptures": {
+        "0": {
+          "name": "string.unquoted.plain.out.yaml"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "string.unquoted.plain.out.yaml"
+        }
+      },
+      "patterns": [
+				{
+					"begin": "(^|\\G)(\\s*)(.*)",
+					"while": "(^|\\G)(?!\\s+\\}\\}\\s*$)",
+					"contentName": "meta.embedded.block.javascript",
+					"patterns": [
+						{
+							"include": "source.js"
+						}
+					]
+				}
+			]
+    },
+    "block-js-one-line-expression": {
+      "match": "(\\$)(\\{\\{\\s+.*?\\s+\\}\\}\\s*$)",
+      "captures": {
+        "1": {
+          "name": "string.unquoted.plain.out.yaml"
+        },
+        "2": {
+          "patterns": [
+            {
+              "include": "#one-line-js-expression"
+            }
+          ]
+        }
+      }
+    },
+    "one-line-js-expression": {
+      "match": "(\\{\\{\\s+.*?\\s+\\}\\}\\s*$)",
+      "captures": {
+        "1": {
+          "patterns": [
+            {
+              "begin": "\\{\\{",
+              "end": "\\}\\}\\s*$",
+              "contentName": "meta.embedded.block.javascript",
+              "beginCaptures": {
+                "0": {
+                  "name": "string.unquoted.plain.out.yaml"
+                }
+              },
+              "endCaptures": {
+                "0": {
+                  "name": "string.unquoted.plain.out.yaml"
+                }
+              },
+              "patterns": [
+                {
+                  "include": "source.js"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
 	}
 }
