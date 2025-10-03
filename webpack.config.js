@@ -19,7 +19,7 @@ const config = {
   },
   entry: {
     extension: './src/node/yamlClientMain.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
-    languageserver: './node_modules/yaml-language-server/out/server/src/server.js',
+    languageserver: './../yaml-language-server/out/server/src/server.js',
   },
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
@@ -123,7 +123,7 @@ const serverWeb = {
   mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
   target: 'webworker', // extensions run in a webworker context
   entry: {
-    'languageserver-web': './node_modules/yaml-language-server/lib/esm/webworker/yamlServerMain',
+    'languageserver-web': './../yaml-language-server/lib/esm/webworker/yamlServerMain',
   },
   output: {
     filename: 'languageserver-web.js',
@@ -143,6 +143,7 @@ const serverWeb = {
       path: require.resolve('path-browserify/'),
       url: require.resolve('url/'),
       buffer: require.resolve('buffer/'),
+      perf_hooks: false,
       fs: false,
     },
   },
