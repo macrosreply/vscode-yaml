@@ -159,7 +159,7 @@ export function startClient(
         );
 
         return result;
-      }
+      },
     },
     initializationOptions: {
       l10nPath,
