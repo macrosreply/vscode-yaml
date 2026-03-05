@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TextDocument } from 'vscode';
 import { TelemetryService } from './extension';
 import { yamlDocumentsCache } from './languageservice/parser/yaml-documents';
