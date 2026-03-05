@@ -358,6 +358,12 @@
     "vscode-nls": "^3.2.1",
     "vscode-uri": "^2.0.3",
     "whatwg-fetch": "^3.6.2",
-    "yaml-language-server": "next"
+    "yaml-language-server": "next",
+    "yaml": "2.7.1",
+    "@vscode/l10n": "^0.0.18",
+    "vscode-languageserver-textdocument": "^1.0.1",
+    "vscode-json-languageservice": "4.1.8",
+    "vscode-languageserver": "^9.0.0",
+    "vscode-languageserver-types": "^3.16.0"
   }
 }

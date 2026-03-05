@@ -1,34 +1,28 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Red Hat, Inc. All rights reserved.
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+export declare type CustomSchemaProvider = (uri: string) => Promise<string | string[]>;
 
-import { convertSimple2RegExpPattern } from '../utils/strings';
+export enum MODIFICATION_ACTIONS {
+  'delete',
+  'add',
+  'deleteAll',
+}
 
-export class FilePatternAssociation {
-  private schemas: string[];
-  private patternRegExp: RegExp;
+export interface SchemaAdditions {
+  schema: string;
+  action: MODIFICATION_ACTIONS.add;
+  path: string;
+  key: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  content: any;
+}
 
-  constructor(pattern: string) {
-    try {
-      this.patternRegExp = new RegExp(convertSimple2RegExpPattern(pattern) + '$');
-    } catch (e) {
-      // invalid pattern
-      this.patternRegExp = null;
-    }
-    this.schemas = [];
-  }
+export interface SchemaDeletions {
+  schema: string;
+  action: MODIFICATION_ACTIONS.delete;
+  path: string;
+  key: string;
+}
 
-  public addSchema(id: string): void {
-    this.schemas.push(id);
-  }
-
-  public matchesPattern(fileName: string): boolean {
-    return this.patternRegExp && this.patternRegExp.test(fileName);
-  }
-
-  public getSchemas(): string[] {
-    return this.schemas;
-  }
+export interface SchemaDeletionsAll {
+  schemas: string[];
+  action: MODIFICATION_ACTIONS.deleteAll;
 }
