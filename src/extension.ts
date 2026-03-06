@@ -123,16 +123,16 @@ export function startClient(
     // Register the server for on disk and newly created YAML documents
     documentSelector: [
       { language: 'yaml' },
-      // { language: 'yaml-textmate' },
-      // { language: 'yaml-tmlanguage' },
-      // { language: 'ansible' },
-      // { language: 'azure-pipelines' },
-      // { language: 'dockercompose' },
-      // { language: 'github-actions-workflow' },
-      // { language: 'home-assistant' },
-      // { language: 'manifest-yaml' },
-      // { language: 'spring-boot-properties-yaml' },
-      { pattern: '*.y(a)ml' },
+      { language: 'eBuilder.yaml' },
+      { language: 'yaml-textmate' },
+      { language: 'yaml-tmlanguage' },
+      { language: 'ansible' },
+      { language: 'azure-pipelines' },
+      { language: 'dockercompose' },
+      { language: 'github-actions-workflow' },
+      { language: 'home-assistant' },
+      { language: 'manifest-yaml' },
+      { language: 'spring-boot-properties-yaml' },
     ],
     synchronize: {
       // Notify the server about file changes to YAML and JSON files contained in the workspace
@@ -173,7 +173,7 @@ export function startClient(
   };
 
   // Create the language client and start it
-  client = newLanguageClient('yaml', lsName, clientOptions);
+  client = newLanguageClient('eBuilder.yaml', lsName, clientOptions);
 
   const disposable = client.start();
 
