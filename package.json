@@ -71,6 +71,8 @@
         ],
         "extensions": [
           ".yml",
+          ".eyaml",
+          ".eyml",
           ".yaml"
         ],
         "filenames": [
