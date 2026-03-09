@@ -5,11 +5,10 @@
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Position, Range } from 'vscode-languageserver-types';
-import { getLineOffsets } from './arrUtils';
 
-// interface FullTextDocument {
-//   getLineOffsets(): number[];
-// }
+interface FullTextDocument {
+  getLineOffsets(): number[];
+}
 
 export class TextBuffer {
   constructor(private doc: TextDocument) {}
@@ -19,7 +18,7 @@ export class TextBuffer {
   }
 
   getLineLength(lineNumber: number): number {
-    const lineOffsets = getLineOffsets(this.doc.getText());
+    const lineOffsets = ((this.doc as unknown) as FullTextDocument).getLineOffsets();
     if (lineNumber >= lineOffsets.length) {
       return this.doc.getText().length;
     } else if (lineNumber < 0) {
@@ -31,7 +30,7 @@ export class TextBuffer {
   }
 
   getLineContent(lineNumber: number): string {
-    const lineOffsets = getLineOffsets(this.doc.getText());
+    const lineOffsets = ((this.doc as unknown) as FullTextDocument).getLineOffsets();
     if (lineNumber >= lineOffsets.length) {
       return this.doc.getText();
     } else if (lineNumber < 0) {

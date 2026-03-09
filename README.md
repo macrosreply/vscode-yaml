@@ -46,6 +46,7 @@ The following settings are supported:
 * `yaml.format.trailingComma`: Specify if trailing commas should be used in JSON-like segments of the YAML
 * `yaml.validate`: Enable/disable validation feature
 * `yaml.hover`: Enable/disable hover
+* `yaml.hoverAnchor`: Enable/disable hover feature for anchors
 * `yaml.completion`: Enable/disable autocompletion
 * `yaml.schemas`: Helps you associate schemas with files in a glob pattern
 * `yaml.schemaStore.enable`: When set to true, the YAML language server will pull in all available schemas from [JSON Schema Store](http://schemastore.org/json/)
@@ -67,6 +68,33 @@ The following settings are supported:
 - `yaml.style.flowSequence` : Forbids flow style sequences if set to `forbid`
 - `yaml.keyOrdering` : Enforces alphabetical ordering of keys in mappings when set to `true`. Default is `false`
 - `yaml.extension.recommendations` : Enable extension recommendations for YAML files. Default is `true`
+
+## Suppressing diagnostics
+
+You can suppress specific validation warnings on a per-line basis by adding a `# yaml-language-server-disable` comment on the line immediately before the one producing the diagnostic.
+
+### Suppress all diagnostics on a line
+
+```yaml
+# yaml-language-server-disable
+version: 123
+```
+
+### Suppress only specific diagnostics
+
+Provide one or more message substrings (comma-separated, case-insensitive). Only diagnostics whose message contains a matching substring will be suppressed; the rest are kept.
+
+```yaml
+# yaml-language-server-disable Incorrect type
+version: 123
+```
+
+```yaml
+# yaml-language-server-disable Incorrect type, not accepted
+version: 123
+```
+
+The substrings are matched against the diagnostic messages shown in the VS Code **Problems** panel.
 
 ## Adding custom tags
 

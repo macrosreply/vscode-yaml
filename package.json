@@ -3,6 +3,7 @@
   "displayName": "eBuilder YAML",
   "description": "eBuilder YAML Language Support customized from YAML Language Support by Red Hat",
   "author": "Red Hat",
+  "l10n": "./dist/l10n",
   "contributors": [
     {
       "name": "Joshua Pinkney",
@@ -14,7 +15,7 @@
     }
   ],
   "license": "MIT",
-  "version": "1.20.0",
+  "version": "1.22.0",
   "publisher": "redhat",
   "bugs": "https://github.com/redhat-developer/vscode-yaml/issues",
   "repository": {
@@ -41,10 +42,15 @@
   "activationEvents": [
     "workspaceContains:./package.ya?ml",
     "onLanguage:yaml",
+    "onLanguage:yaml-textmate",
+    "onLanguage:yaml-tmlanguage",
+    "onLanguage:ansible",
+    "onLanguage:azure-pipelines",
     "onLanguage:dockercompose",
     "onLanguage:github-actions-workflow",
-    "onLanguage:yaml-textmate",
-    "onLanguage:yaml-tmlanguage"
+    "onLanguage:home-assistant",
+    "onLanguage:manifest-yaml",
+    "onLanguage:spring-boot-properties-yaml"
   ],
   "keywords": [
     "kubernetes",
@@ -65,6 +71,8 @@
         ],
         "extensions": [
           ".yml",
+          ".eyaml",
+          ".eyml",
           ".yaml"
         ],
         "filenames": [
@@ -125,12 +133,37 @@
         "yaml.schemas": {
           "type": "object",
           "default": {},
-          "description": "Associate schemas to YAML files in the current workspace"
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "markdownDescription": "- **Key**: The path or URL of the schema to use\n- **Value**: A glob pattern or list of glob patterns specifying which files the schema should be used on"
+          },
+          "markdownDescription": "Associate schemas to YAML files in the current workspace. The expected value of this configuration option is a string to string map:\n- **Key**: The path or URL of the schema to use\n- **Value**: A glob pattern or list of glob patterns specifying which files the schema should be used on"
+        },
+        "yaml.kubernetesCRDStore.enable": {
+          "type": "boolean",
+          "description": "Enable/disable validation of Kubernetes custom resources using schemas from well-known Custom Resource Definitions (CRDs)",
+          "default": true
+        },
+        "yaml.kubernetesCRDStore.url": {
+          "type": "string",
+          "description": "The base URL for fetching well-known Custom Resource Definition (CRD) schemas",
+          "default": "https://raw.githubusercontent.com/datreeio/CRDs-catalog/main"
         },
         "yaml.format.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Enable/disable default YAML formatter"
+          "description": "Enable/disable default YAML formatter",
+          "scope": "language-overridable"
         },
         "yaml.format.singleQuote": {
           "type": "boolean",
@@ -165,12 +198,18 @@
         "yaml.validate": {
           "type": "boolean",
           "default": true,
-          "description": "Enable/disable validation feature"
+          "description": "Enable/disable validation feature",
+          "scope": "language-overridable"
         },
         "yaml.hover": {
           "type": "boolean",
           "default": true,
           "description": "Enable/disable hover feature"
+        },
+        "yaml.hoverAnchor": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable hover feature for anchors"
         },
         "yaml.completion": {
           "type": "boolean",
@@ -266,25 +305,29 @@
     "test": "npm run test-compile && sh scripts/e2e.sh",
     "ui-test": "npm run test-compile && extest setup-and-run out/test/ui-test/allTestsSuite.js -c 1.76.2",
     "vscode:prepublish": "webpack --mode production && npm run copy-l10n",
-    "copy-l10n": "cp -r ../yaml-language-server/l10n dist/l10n",
+    "copy-l10n": "cp -r node_modules/yaml-language-server/l10n dist/l10n",
     "watch": "webpack --mode development --watch --info-verbosity verbose",
     "test-compile": "npm run clean && tsc -p ./ && webpack --mode development && npm run copy-l10n",
-    "run-in-chromium": "npm run compile && vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
+    "smoke-test": "npm run test-compile && vscode-test smoke-test/*",
+    "compile-smoke-test-web": "webpack --config smoke-test/webpack.config",
+    "smoke-test-web": "npm run compile-smoke-test-web && vscode-test-web --extensionDevelopmentPath=. --extensionTestsPath=./out/smoke-test/smoke-test-runner.js ./smoke-test",
+    "run-in-chromium": "npm run compile && vscode-test-web --browserType=chromium --extensionDevelopmentPath=. smoke-test"
   },
   "devDependencies": {
     "@types/chai": "^4.2.12",
     "@types/fs-extra": "^9.0.6",
-    "@types/mocha": "^2.2.48",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^18.x",
     "@types/sinon": "^10.0.6",
     "@types/sinon-chai": "^3.2.5",
     "@types/vscode": "^1.63.0",
     "@types/webpack": "^4.4.10",
+    "@types/webpack-env": "^1.18.8",
     "@typescript-eslint/eslint-plugin": "^7.11.0",
     "@typescript-eslint/parser": "^7.11.0",
+    "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.4.0",
-    "@vscode/test-web": "0.0.11",
-    "@vscode/vsce": "^3.6.2",
+    "@vscode/test-web": "^0.0.78",
     "buffer": "^6.0.3",
     "chai": "^4.2.0",
     "crypto-browserify": "^3.12.0",
@@ -292,7 +335,7 @@
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
     "glob": "^7.1.6",
-    "mocha": "^9.1.2",
+    "mocha": "^11.1.2",
     "path-browserify": "^1.0.1",
     "prettier": "2.2.1",
     "process": "^0.11.10",
@@ -311,18 +354,17 @@
   },
   "dependencies": {
     "@redhat-developer/vscode-redhat-telemetry": "^0.8.0",
-    "@vscode/l10n": "^0.0.18",
-    "ajv": "^8.17.1",
-    "ajv-draft-04": "^1.0.0",
     "fs-extra": "^9.1.0",
     "request-light": "^0.5.7",
-    "vscode-json-languageservice": "4.1.8",
     "vscode-languageclient": "7.0.0",
-    "vscode-languageserver": "^9.0.0",
-    "vscode-languageserver-textdocument": "^1.0.1",
     "vscode-nls": "^3.2.1",
     "vscode-uri": "^2.0.3",
     "whatwg-fetch": "^3.6.2",
-    "yaml": "2.7.1"
+    "yaml-language-server": "next",
+    "yaml": "2.7.1",
+    "@vscode/l10n": "^0.0.18",
+    "vscode-languageserver-textdocument": "^1.0.1",
+    "vscode-json-languageservice": "4.1.8",
+    "vscode-languageserver-types": "^3.16.0"
   }
 }

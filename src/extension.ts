@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Red Hat, Inc. All rights reserved.
  *  Copyright (c) Adam Voss. All rights reserved.
@@ -19,7 +20,6 @@ import { joinPath } from './paths';
 import { getJsonSchemaContent, IJSONSchemaCache, JSONSchemaDocumentContentProvider } from './json-schema-content-provider';
 import { getConflictingExtensions, showUninstallConflictsNotification } from './extensionConflicts';
 import { TelemetryErrorHandler, TelemetryOutputChannel } from './telemetry';
-import { TextDecoder } from 'util';
 import { createJSONSchemaStatusBarItem } from './schema-status-bar-item';
 import { initializeRecommendation } from './recommendation';
 import { buildRootStyleVirtualContent, isInRootComponentStyle } from './eBuilderYaml';
@@ -68,6 +68,8 @@ namespace FSReadFile {
   // eslint-disable-next-line @typescript-eslint/ban-types
   export const type: RequestType<string, string, {}> = new RequestType('fs/readFile');
 }
+
+export const FSReadUriType: RequestType<string, string, unknown> = new RequestType('fs/readUri');
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 namespace DynamicCustomSchemaRequestRegistration {
@@ -120,13 +122,17 @@ export function startClient(
   const clientOptions: LanguageClientOptions = {
     // Register the server for on disk and newly created YAML documents
     documentSelector: [
-      { language: 'eBuilder.yaml' },
       { language: 'yaml' },
-      { language: 'dockercompose' },
-      { language: 'github-actions-workflow' },
+      { language: 'eBuilder.yaml' },
       { language: 'yaml-textmate' },
       { language: 'yaml-tmlanguage' },
-      { pattern: '*.y(a)ml' },
+      { language: 'ansible' },
+      { language: 'azure-pipelines' },
+      { language: 'dockercompose' },
+      { language: 'github-actions-workflow' },
+      { language: 'home-assistant' },
+      { language: 'manifest-yaml' },
+      { language: 'spring-boot-properties-yaml' },
     ],
     synchronize: {
       // Notify the server about file changes to YAML and JSON files contained in the workspace
@@ -167,7 +173,7 @@ export function startClient(
   };
 
   // Create the language client and start it
-  client = newLanguageClient('yaml', lsName, clientOptions);
+  client = newLanguageClient('eBuilder.yaml', lsName, clientOptions);
 
   const disposable = client.start();
 
@@ -230,8 +236,24 @@ export function startClient(
       client.onRequest(VSCodeContentRequest.type, (uri: string) => {
         return getJsonSchemaContent(uri, runtime.schemaCache);
       });
-      client.onRequest(FSReadFile.type, (fsPath: string) => {
-        return workspace.fs.readFile(Uri.file(fsPath)).then((uint8array) => new TextDecoder().decode(uint8array));
+      client.onRequest(FSReadFile.type, async (fsPath: string) => {
+        try {
+          const uint8array = await workspace.fs.readFile(Uri.file(fsPath));
+          return new TextDecoder().decode(uint8array);
+        } catch {
+          const workspaceFolderBasedPath = workspace.workspaceFolders[0].uri.with({ path: fsPath });
+          const uint8array = await workspace.fs.readFile(workspaceFolderBasedPath);
+          return new TextDecoder().decode(uint8array);
+        }
+      });
+      client.onRequest(FSReadUriType, async (uri: string) => {
+        try {
+          const parsedUri = Uri.parse(uri);
+          const uint8array = await workspace.fs.readFile(parsedUri);
+          return new TextDecoder().decode(uint8array);
+        } catch (e) {
+          window.showErrorMessage(`Error while retrieving content of '${uri}': ${e}`);
+        }
       });
 
       sendStartupTelemetryEvent(runtime.telemetry, true);

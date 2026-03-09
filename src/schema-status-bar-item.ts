@@ -71,7 +71,7 @@ export function createJSONSchemaStatusBarItem(context: ExtensionContext, languag
 }
 
 async function updateStatusBar(editor: TextEditor): Promise<void> {
-  if (editor && editor.document.languageId === 'yaml') {
+  if (editor && editor.document.languageId === 'eBuilder.yaml') {
     versionSelection = undefined;
     // get schema info there
     const schema = await client.sendRequest(getSchemaRequestType, editor.document.uri.toString());
